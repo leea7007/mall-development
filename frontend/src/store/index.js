@@ -1,5 +1,5 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
-import userReducer from "./userSlice";
+import userReducer from "./userSlice"; // userSlice import
 import storage from "redux-persist/lib/storage";
 import {
   FLUSH,
@@ -11,16 +11,14 @@ import {
   persistReducer,
   persistStore,
 } from "redux-persist";
-import getStoredState from "redux-persist/es/getStoredState";
 
 const rootReducer = combineReducers({
-  user: userReducer,
-  // post: postReducer,
+  user: userReducer, // user slice가 잘 연결되어 있는지 확인
 });
 
 const persistConfig = {
-  key: "root", //key name
-  storage, // ssave on localStorage
+  key: "root",
+  storage, // persist storage 설정
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -32,21 +30,9 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }), //serializable한지 체크를 항상 하기 때문에 꺼놓기
+    }),
 });
 
-/*
-export const store = configureStore({
-  reducer: {
-    reducer: persistedReducer,
-    middleware: (getDefaultMiddleware) => {
-      getDefaultMiddleware({
-        serializableCheck: {
-          ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],  //serializable한지 체크를 항상 하기 때문에 꺼놓기
-        },
-      });
-    },
-  },
-});
-*/
 export const persistor = persistStore(store);
+
+export default store;

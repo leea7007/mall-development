@@ -1,57 +1,101 @@
 const express = require("express");
-const path = require("path"); //path 모듈을 사용하면 상대경로를 사용할 수 있음
+const path = require("path");
 const cors = require("cors");
 const app = express();
 const PORT = 8080;
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
+const User = require("./models/Users"); // { User }에서 User로 변경
 require("dotenv").config();
+
 mongoose
   .connect(
-    "mongodb+srv://mallDevelopment:mall12345@project0.gvq59.mongodb.net/?retryWrites=true&w=majority&appName=project0"
+    "mongodb+srv://leea7007:1029@cluster0.grjz8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }
   )
   .then(() => {
     console.log("MongoDB connected...");
-    console.log("MONGO_URL:", process.env.MONGO_URL);
   })
   .catch((err) => {
-    console.log(err);
+    console.log("MongoDB 연결 오류:", err);
   });
-
-app.use(cors());
+console.log("mongo url:", process.env.MONGO_URL);
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 app.use(express.json());
-
-app.use(express.static(path.join(__dirname, "uploads"))); // __dirname은 현재 파일이 있는 경로
-
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-app.post("/post", (req, res) => {
-  console.log(req.body);
-  res.json({ message: "Post 요청이 완료되었습니다." });
+app.get("/user", (req, res) => {
+  res.json({ message: "GET 요청이 완료되었습니다." });
 });
 
-//app.use(express.static("public")); //퍼블릭 안에 있는 정적인 파일을 사용할 수 있음
-app.use(express.static(path.join(__dirname, "../uploads"))); // 앞쪽 ""은 라우트, 뒤쪽 uploads는 폴더명
+app.post("/user/test", (req, res) => {
+  res.json({ message: "POST 요청이 완료되었습니다." });
+});
+
+app.post("/user/register", async (req, res) => {
+  const { email, password, firstName, lastName } = req.body;
+  console.log("받은 데이터:", req.body);
+  try {
+    // 이미 있는 이메일인지 확인 해결 전까지 일단 주석처리
+    console.log("User 모델 확인:", User);
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "이미 사용 중인 이메일입니다." });
+    }
+
+    // 새로운 사용자 생성
+    const newUser = new User({
+      email,
+      password,
+      firstName,
+      lastName,
+    });
+    console.log("새로운 사용자:", newUser);
+    // 데이터베이스에 저장
+    await newUser.save();
+    console.log("저장 완료");
+    // 성공적으로 저장되면 응답
+    res.status(201).json({ message: "회원가입 성공", user: newUser });
+  } catch (err) {
+    console.error("회원가입 중 에러 발생:", err); // 여기서 발생한 에러를 콘솔에 출력
+    res
+      .status(500)
+      .json({ message: "서버 오류, 다시 시도해 주세요.", error: err });
+  }
+});
+
+app.post("/user/login", async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({ message: "사용자가 존재하지 않습니다." });
+    }
+
+    if (user.password !== password) {
+      return res.status(400).json({ message: "비밀번호가 맞지 않습니다." });
+    }
+
+    res.status(200).json({ message: "로그인 성공", user });
+  } catch (err) {
+    console.error("로그인 중 에러 발생:", err);
+    res.status(500).json({ message: "서버 오류", error: err });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
-});
-
-// express error handling
-app.get("/error", (req, res) => {
-  throw new Error("에러를 강제로 발생시켰습니다.");
-});
-app.get("/setImediate", (req, res, next) => {
-  setImmediate(() => {
-    next(new Error("setImmediate에서 에러를 발생시켰습니다."));
-  });
-});
-app.get("*", (req, res) => {
-  res.status(404).send("404 NOT FOUND");
-});
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send(err.status || "Something broke!");
 });

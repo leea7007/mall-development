@@ -1,16 +1,36 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
+import { registerUser } from "../../store/thunkFunctions";
+import axios from "axios";
 
 const RegisterPage = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors }, 
+    formState: { errors },
     reset,
   } = useForm({ mode: "onChange" });
 
+  const dispatch = useDispatch();
   const onSubmit = async ({ email, password, firstName, lastName }) => {
-    console.log("Submitted:", { email, password, firstName, lastName });
+    console.log("🚀 [회원가입 요청 시작]");
+    console.log("📩 입력된 데이터:", { email, password, firstName, lastName });
+
+    const body = { email, password, firstName, lastName, image: "" };
+    console.log("📡 [서버 요청 전송] Body:", body);
+
+    try {
+      const result = await axios.post(
+        "http://localhost:8080/user/register",
+        body
+      );
+      console.log("✅ [회원가입 성공] 응답 데이터:", result);
+    } catch (error) {
+      console.error("❌ [회원가입 실패] 에러 메시지:", error);
+    }
+
+    console.log("🔄 [입력 폼 초기화]");
     reset();
   };
 

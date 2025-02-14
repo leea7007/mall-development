@@ -1,20 +1,25 @@
 const mongoose = require("mongoose");
 
-const Schema = mongoose.Schema; // mongoose의 Schema 생성자를 가져옴
+const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
-  username: {
+  firstName: {
     type: String,
     maxlength: 50,
     required: true,
-    unique: true,
+    trim: true,
+  },
+  lastName: {
+    type: String,
+    maxlength: 50,
+    required: true,
     trim: true,
   },
   email: {
     type: String,
     required: true,
     unique: true,
-    trim: true, // trim은 빈칸 없애는 기능
+    trim: true,
   },
   password: {
     type: String,
@@ -23,7 +28,7 @@ const userSchema = new Schema({
   },
   role: {
     type: Number,
-    default: 0, // 0: 일반 사용자, 1: 관리자
+    default: 0,
   },
   image: {
     type: String,
@@ -35,6 +40,6 @@ const userSchema = new Schema({
   },
 });
 
+// User 모델을 직접 내보내는 방법
 const User = mongoose.model("User", userSchema);
-
-module.exports = User;
+module.exports = User; // User만 내보내기
