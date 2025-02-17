@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"; // useState, useEffect 한 번에 임포트
-import { Provider, useDispatch } from "react-redux"; // useDispatch를 react-redux에서 함께 임포트
+import { Provider, useDispatch, useSelector } from "react-redux"; // useDispatch를 react-redux에서 함께 임포트
 import { PersistGate } from "redux-persist/integration/react";
-import { Routes, Route, Outlet } from "react-router-dom"; // 필요한 것만 임포트
+import { Routes, Route, Outlet, useLocation } from "react-router-dom"; // 필요한 것만 임포트
 import store, { persistor } from "./store"; // store와 persistor를 따로 import
 import Footer from "./layout/Footer";
 import NavBar from "./layout/Navbar";
@@ -11,6 +11,13 @@ import RegisterPage from "./pages/RegisterPage";
 import { ToastContainer } from "react-toastify";
 import { loginUser, registerUser } from "./_actions/user_actions"; // 액션 임포트
 import "react-toastify/dist/ReactToastify.css"; // CSS 임포트
+import { authUser } from "./store/thunkFunctions"; // authUser 액션 임포트
+
+// function handleLogin() {
+//   fetch("user/login", { method: "POST", credentials: "include" })
+//     .then((res) => res.json())
+//     .then((result) => console.log("로그인 결과:", result));
+// }
 
 function Layout({ data }) {
   return (
@@ -22,6 +29,10 @@ function Layout({ data }) {
       <Footer />
       <div>
         <h1>백엔드 API 응답: {data ? JSON.stringify(data) : "로딩 중..."}</h1>
+        <h1>
+          로그인 상태 확인:{" "}
+          {data && data.isLoggedIn ? "로그인됨" : "로그인되지 않음"}
+        </h1>
       </div>
     </div>
   );
@@ -32,11 +43,19 @@ function App() {
   const [data, setData] = useState(null);
   const [loginError, setLoginError] = useState(null);
   const [registerError, setRegisterError] = useState(null);
+  const isAuth = useSelector((state) => state.user?.isAuth);
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    if (isAuth) {
+      dispatch(authUser());
+    }
+  }, [isAuth, pathname, dispatch]);
 
   // useEffect 훅 수정: 로그인 및 회원가입은 한 번만 실행되도록 수정
   useEffect(() => {
     // 로그인 요청 보내기 (로그인된 상태 체크)
-    const dataToSubmit = { email: "user@example.com", password: "password123" };
+    const dataToSubmit = { email: "", password: "" };
     dispatch(loginUser(dataToSubmit))
       .then((response) => {
         console.log("로그인 응답:", response);
@@ -47,20 +66,20 @@ function App() {
       });
 
     // 회원가입 요청 보내기 (실제 환경에서는 주석 처리 또는 제거해야 함)
-    const registerData = {
-      email: "",
-      password: "",
-      firstName: "",
-      lastName: "",
-    };
-    dispatch(registerUser(registerData))
-      .then((response) => {
-        console.log("회원가입 응답:", response);
-      })
-      .catch((error) => {
-        console.error("회원가입 실패:", error);
-        setRegisterError("회원가입에 실패했습니다. 다시 시도해주세요.");
-      });
+    // const registerData = {
+    //   email: "",
+    //   password: "",
+    //   firstName: "",
+    //   lastName: "",
+    // };
+    // dispatch(registerUser(registerData))
+    //   .then((response) => {
+    //     console.log("회원가입 응답:", response);
+    //   })
+    //   .catch((error) => {
+    //     console.error("회원가입 실패:", error);
+    //     setRegisterError("회원가입에 실패했습니다. 다시 시도해주세요.");
+    //   });
 
     // 테스트용 API 호출
     fetch("http://localhost:8080/user/test", {
@@ -82,7 +101,7 @@ function App() {
         console.error("API 호출 오류:", err);
         setData(null);
       });
-  }, [dispatch]); // 빈 의존성 배열로 한 번만 실행되도록 설정
+  }, []); // 빈 의존성 배열로 한 번만 실행되도록 설정
 
   return (
     <Provider store={store}>

@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
-import { registerUser } from "./thunkFunctions"; // registerUser import
+import { registerUser, loginUser, authUser } from "./thunkFunctions"; // registerUser import
 
 const initialState = {
   isLoading: false,
@@ -31,6 +31,48 @@ const userSlice = createSlice({
         toast.error(`회원가입 실패: ${action.payload}`, {
           position: "top-center",
         });
+      })
+      .addCase(loginUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(loginUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (action.payload.loginSuccess) {
+          state.isAuth = true;
+          toast.info("로그인 성공!", { position: "top-center" });
+        } else {
+          // 로그인 실패 처리
+          state.isAuth = false;
+          toast.error(action.payload.message || "로그인 실패", {
+            position: "top-center",
+          });
+        }
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+        toast.error(`로그인 실패: ${action.payload}`, {
+          position: "top-center",
+        });
+      })
+
+      .addCase(authUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(authUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (action.payload.loginSuccess) {
+          state.isAuth = true;
+        } else {
+          // 로그인 실패 처리
+          state.isAuth = false;
+        }
+      })
+      .addCase(authUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+        state.isAuth = false;
+        localStorage.removeItem("accessToken");
       });
   },
 });

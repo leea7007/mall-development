@@ -18,19 +18,9 @@ const RegisterPage = () => {
     console.log("📩 입력된 데이터:", { email, password, firstName, lastName });
 
     const body = { email, password, firstName, lastName, image: "" };
-    console.log("📡 [서버 요청 전송] Body:", body);
 
-    try {
-      const result = await axios.post(
-        "http://localhost:8080/user/register",
-        body
-      );
-      console.log("✅ [회원가입 성공] 응답 데이터:", result);
-    } catch (error) {
-      console.error("❌ [회원가입 실패] 에러 메시지:", error);
-    }
+    dispatch(registerUser(body));
 
-    console.log("🔄 [입력 폼 초기화]");
     reset();
   };
 

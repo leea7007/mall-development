@@ -20,3 +20,36 @@ export const registerUser = createAsyncThunk(
     }
   }
 );
+
+export const loginUser = createAsyncThunk(
+  "user/login",
+  async (userData, thunkAPI) => {
+    try {
+      const res = await request
+        .post("http://localhost:8080/user/login")
+        .send(userData)
+        .set("Content-Type", "application/json");
+
+      // 로그인 성공 여부 확인 후 success/failed로 처리
+      if (res.body.loginSuccess === false) {
+        return thunkAPI.rejectWithValue(res.body.message);
+      }
+
+      return res.body; // 성공하면 그대로 반환
+    } catch (error) {
+      return thunkAPI.rejectWithValue("로그인 실패");
+    }
+  }
+);
+
+export const authUser = createAsyncThunk(
+  "user/authUser",
+  async (userData, thunkAPI) => {
+    try {
+      const res = await request.get("http://localhost:8080/user/authUser");
+      return res.body;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.body || "Auth failed");
+    }
+  }
+);
