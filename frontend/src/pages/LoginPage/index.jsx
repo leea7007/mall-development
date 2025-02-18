@@ -2,6 +2,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { loginUser } from "../../store/thunkFunctions";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
   const {
@@ -12,6 +13,7 @@ const LoginPage = () => {
   } = useForm({ mode: "onChange" });
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   //   try {
   //     const result = await axios.post(
   //       "http://localhost:8080/user/login",
@@ -29,8 +31,23 @@ const LoginPage = () => {
   const onSubmit = async ({ email, password }) => {
     console.log("🚀 [로그인 요청 시작]");
     const body = { email, password };
-    console.log("📩 입력된 데이터:", body);
-    dispatch(loginUser(body));
+
+    try {
+      const result = await dispatch(loginUser(body));
+
+      console.log("📌 디스패치 결과:", result); // 🚨 결과 구조 직접 확인
+
+      // 로그인 성공 조건 확인
+      if (result.payload?.loginSuccess) {
+        console.log("✅ [로그인 성공] 응답 데이터:", result.payload);
+        localStorage.setItem("accessToken", result.payload.accessToken);
+        navigate("/");
+      } else {
+        console.error("❌ [로그인 실패] loginSuccess가 false이거나 응답 없음");
+      }
+    } catch (error) {
+      console.error("❌ [로그인 실패] 에러 메시지:", error);
+    }
   };
 
   return (

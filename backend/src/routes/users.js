@@ -56,7 +56,7 @@ router.post("/login", async (req, res, next) => {
 
     // 토큰 생성
     const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: "1h", // 1 hour limit
     });
 
     console.log("Login successful:", { userId: user._id, accessToken });
@@ -67,22 +67,24 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
-router.get("/auth", auth, (req, res) => {
+router.get("/authUser", auth, (req, res) => {
   res.send("인증");
-  return res
-    .status(200)
-    .json({
-      _id: req.user._id,
-      email: req.user.email,
-      firstName: req.user.firstName,
-      lastName: req.user.lastName,
-      role: req.user.role,
-      image: req.user.image,
-    });
+  return res.status(200).json({
+    _id: req.user._id,
+    email: req.user.email,
+    firstName: req.user.firstName,
+    lastName: req.user.lastName,
+    role: req.user.role,
+    image: req.user.image,
+  });
 });
 
-router.post("/users/logout", (req, res) => {
-  res.send("로그아웃");
+router.post("/logout", auth, (req, res, next) => {
+  try {
+    return res.sendStatus(200);
+  } catch (err) {
+    next(err);
+  }
 });
 
 module.exports = router;

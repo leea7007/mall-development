@@ -98,6 +98,10 @@ app.post("/user/login", async (req, res) => {
   }
 });
 
+app.get("/user/authUser", (req, res) => {
+  res.json({ message: "인증에 성공했습니다." });
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });

@@ -1,11 +1,11 @@
-import React from 'react'
+import React from "react";
+import { useSelector } from "react-redux";
+import { Outlet, Navigate } from "react-router-dom";
 
 const NotAuthRoutes = () => {
-  return (
-    <div>
-      
-    </div>
-  )
-}
+  const isAuth = useSelector((state) => state.user.isAuth);
+  console.log("NotAuthRoutes isAuth:", isAuth);
+  return isAuth ? <Navigate to={"/"} /> : <Outlet />;
+};
 
-export default NotAuthRoutes
+export default NotAuthRoutes;

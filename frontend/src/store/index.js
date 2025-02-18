@@ -12,10 +12,12 @@ import {
   persistStore,
 } from "redux-persist";
 
+// rootReducer 설정
 const rootReducer = combineReducers({
   user: userReducer, // user slice가 잘 연결되어 있는지 확인
 });
 
+// persist 설정
 const persistConfig = {
   key: "root",
   storage, // persist storage 설정
@@ -24,7 +26,7 @@ const persistConfig = {
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
-  reducer: persistedReducer,
+  reducer: persistedReducer, // persistedReducer를 사용해야 합니다.
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
@@ -33,6 +35,7 @@ export const store = configureStore({
     }),
 });
 
+// persistStore 설정
 export const persistor = persistStore(store);
 
 export default store;

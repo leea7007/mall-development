@@ -1,13 +1,11 @@
-//로그인 안 한 사람이 로그인 해야 볼 수 있는 페이지 들어갔을 때 내쫓기
-//스니펫 rafce
-import React from 'react'
+import React from "react";
+import { useSelector } from "react-redux";
+import { Outlet, Navigate } from "react-router-dom";
 
 const ProtectedRoutes = () => {
-  return (
-    <div>
-      
-    </div>
-  )
-}
+  const isAuth = useSelector((state) => state.user.isAuth);
+  console.log("ProtectedRouted isAuth:", isAuth);
+  return isAuth ? <Outlet /> : <Navigate to={"/login"} />;
+};
 
-export default ProtectedRoutes
+export default ProtectedRoutes;

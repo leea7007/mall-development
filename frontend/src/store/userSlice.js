@@ -1,6 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
-import { registerUser, loginUser, authUser } from "./thunkFunctions"; // registerUser import
+import {
+  registerUser,
+  loginUser,
+  authUser,
+  logoutUser,
+} from "./thunkFunctions"; // registerUser import
 
 const initialState = {
   isLoading: false,
@@ -11,7 +16,13 @@ const initialState = {
 const userSlice = createSlice({
   name: "user",
   initialState,
-  reducers: {},
+  reducers: {
+    // 로그아웃 액션
+    logoutUser: (state) => {
+      state.isAuth = false;
+      localStorage.removeItem("accessToken");
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(registerUser.pending, (state) => {
@@ -23,7 +34,6 @@ const userSlice = createSlice({
         toast.info("회원가입이 완료되었습니다. 로그인해주세요.", {
           position: "top-center",
         });
-        console.log("토스트 응답");
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -36,12 +46,16 @@ const userSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        state.isLoading = false;
+        if (!action.payload) {
+          console.error("❌ 로그인 응답이 없습니다.");
+          return;
+        }
+
         if (action.payload.loginSuccess) {
           state.isAuth = true;
+          localStorage.setItem("accessToken", action.payload.accessToken);
           toast.info("로그인 성공!", { position: "top-center" });
         } else {
-          // 로그인 실패 처리
           state.isAuth = false;
           toast.error(action.payload.message || "로그인 실패", {
             position: "top-center",
@@ -60,6 +74,11 @@ const userSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(authUser.fulfilled, (state, action) => {
+        if (action.payload === null) {
+          return;
+        }
+        console.log("🟢 로그인 응답 payload:", action.payload);
+
         state.isLoading = false;
         if (action.payload.loginSuccess) {
           state.isAuth = true;

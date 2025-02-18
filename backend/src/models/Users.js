@@ -38,6 +38,14 @@ const userSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  cart: {
+    type: Array,
+    default: []
+  },
+  history: {
+    type: Array,
+    default: []
+  }
 });
 
 userSchema.pre("save", async function (next) {

@@ -8,10 +8,17 @@ import NavBar from "./layout/Navbar";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import ProtectedPage from "./pages/ProtectedPage";
+import CartPage from "./pages/CartPage";
+import HistoryPage from "./pages/HistoryPage";
+import DetailProductPage from "./pages/DetailProductPage";
+import UploadProductPage from "./pages/UploadProductPage";
 import { ToastContainer } from "react-toastify";
 import { loginUser, registerUser } from "./_actions/user_actions"; // 액션 임포트
 import "react-toastify/dist/ReactToastify.css"; // CSS 임포트
 import { authUser } from "./store/thunkFunctions"; // authUser 액션 임포트
+import ProtectedRoutes from "./components/ProtectedRoutes";
+import NotAuthRoutes from "./components/NotAuthRoutes";
 
 // function handleLogin() {
 //   fetch("user/login", { method: "POST", credentials: "include" })
@@ -39,13 +46,14 @@ function Layout({ data }) {
 }
 
 function App() {
-  const dispatch = useDispatch(); // dispatch 훅 사용
-  const [data, setData] = useState(null);
-  const [loginError, setLoginError] = useState(null);
-  const [registerError, setRegisterError] = useState(null);
-  const isAuth = useSelector((state) => state.user?.isAuth);
-  const { pathname } = useLocation();
-
+  {
+    const dispatch = useDispatch(); // dispatch 훅 사용
+    const [data, setData] = useState(null);
+    const [loginError, setLoginError] = useState(null);
+    const [registerError, setRegisterError] = useState(null);
+    const isAuth = useSelector((state) => state.user?.isAuth);
+    const { pathname } = useLocation();
+  }
   useEffect(() => {
     if (isAuth) {
       dispatch(authUser());
@@ -115,8 +123,19 @@ function App() {
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<LandingPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/cartpage" element={<CartPage />} />
+            <Route path="/detailproduct" element={<DetailProductPage />} />
+            <Route path="/history" element={<HistoryPage />} />
+            <Route path="/upload" element={<UploadProductPage />} />
+
+            <Route element={<ProtectedRoutes />}>
+              <Route path="/protected" element={<ProtectedPage />} />
+            </Route>
+
+            <Route element={<NotAuthRoutes />}>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+            </Route>
           </Route>
         </Routes>
       </PersistGate>
