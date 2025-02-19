@@ -38,12 +38,8 @@ router.post("/login", async (req, res, next) => {
       });
     }
 
-    console.log("입력된 비밀번호:", req.body.password);
-    console.log("저장된 비밀번호:", user.password);
-
     // 비밀번호가 일치하지 않는 경우
     const isMatch = await bcrypt.compare(req.body.password, user.password);
-    console.log("비밀번호 일치 여부:", isMatch);
 
     if (!isMatch) {
       return res.json({
@@ -59,7 +55,6 @@ router.post("/login", async (req, res, next) => {
       expiresIn: "1h", // 1 hour limit
     });
 
-    console.log("Login successful:", { userId: user._id, accessToken });
     return res.json({ loginSuccess: true, userId: user._id, accessToken });
   } catch (err) {
     console.log("Login error:", err);
@@ -68,14 +63,15 @@ router.post("/login", async (req, res, next) => {
 });
 
 router.get("/authUser", auth, (req, res) => {
-  res.send("인증");
-  return res.status(200).json({
-    _id: req.user._id,
+  res.status(200).json({
+    _id: req.user.id,
     email: req.user.email,
     firstName: req.user.firstName,
     lastName: req.user.lastName,
     role: req.user.role,
     image: req.user.image,
+    cart: req.user.cart,
+    history: req.user.history,
   });
 });
 

@@ -46,28 +46,25 @@ function Layout({ data }) {
 }
 
 function App() {
-  {
-    const dispatch = useDispatch(); // dispatch 훅 사용
-    const [data, setData] = useState(null);
-    const [loginError, setLoginError] = useState(null);
-    const [registerError, setRegisterError] = useState(null);
-    const isAuth = useSelector((state) => state.user?.isAuth);
-    const { pathname } = useLocation();
-  }
+  const dispatch = useDispatch(); // dispatch 훅 사용
+  const [data, setData] = useState(null);
+  const [loginError, setLoginError] = useState(null);
+  const [registerError, setRegisterError] = useState(null);
+  const isAuth = useSelector((state) => state.user?.isAuth);
+  const { pathname } = useLocation();
+
   useEffect(() => {
     if (isAuth) {
       dispatch(authUser());
     }
-  }, [isAuth, pathname, dispatch]);
+  }, [dispatch]);
 
   // useEffect 훅 수정: 로그인 및 회원가입은 한 번만 실행되도록 수정
   useEffect(() => {
     // 로그인 요청 보내기 (로그인된 상태 체크)
     const dataToSubmit = { email: "", password: "" };
     dispatch(loginUser(dataToSubmit))
-      .then((response) => {
-        console.log("로그인 응답:", response);
-      })
+      .then((response) => {})
       .catch((error) => {
         console.error("로그인 오류:", error);
         setLoginError("로그인에 실패했습니다. 다시 시도해주세요.");
@@ -126,7 +123,7 @@ function App() {
             <Route path="/cartpage" element={<CartPage />} />
             <Route path="/detailproduct" element={<DetailProductPage />} />
             <Route path="/history" element={<HistoryPage />} />
-            <Route path="/upload" element={<UploadProductPage />} />
+            <Route path="/product/upload" element={<UploadProductPage />} />
 
             <Route element={<ProtectedRoutes />}>
               <Route path="/protected" element={<ProtectedPage />} />

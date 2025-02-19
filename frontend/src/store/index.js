@@ -23,10 +23,14 @@ const persistConfig = {
   storage, // persist storage 설정
 };
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+const persistedReducer = persistReducer(
+  persistConfig,
+  rootReducer,
+  userReducer
+);
 
 export const store = configureStore({
-  reducer: persistedReducer, // persistedReducer를 사용해야 합니다.
+  reducer: { persistedReducer, user: userReducer }, // persistedReducer를 사용해야 합니다.
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {

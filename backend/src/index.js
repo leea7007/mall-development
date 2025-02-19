@@ -1,3 +1,12 @@
+process.emitWarning = (warning, type, code, errno) => {
+  // 경고 메시지가 MongoDB와 관련된 경고일 경우 무시
+  if (warning && warning.includes("MONGODB DRIVER")) {
+    return;
+  }
+  // 기본 경고 처리
+  console.warn(warning);
+};
+
 const express = require("express");
 const path = require("path");
 const cors = require("cors");
@@ -9,13 +18,10 @@ const User = require("./models/Users"); // { User }에서 User로 변경
 require("dotenv").config();
 
 mongoose
-  .connect(
-    "mongodb+srv://leea7007:1029@cluster0.grjz8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
-    {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    }
-  )
+  .connect(process.env.MONGO_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => {
     console.log("MongoDB connected...");
   })
@@ -38,6 +44,8 @@ app.get("/", (req, res) => {
 app.get("/user", (req, res) => {
   res.json({ message: "GET 요청이 완료되었습니다." });
 });
+
+app.use("/products", require("./routes/products"));
 
 app.post("/user/test", (req, res) => {
   res.json({ message: "POST 요청이 완료되었습니다." });
@@ -82,7 +90,16 @@ app.post("/user/login", async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
-
+    const userData = {
+      _id: user._id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      image: user.image, // 필요한 데이터 추가
+      cart: user.cart, // 예시
+      history: user.history, // 예시
+    };
     if (!user) {
       return res.status(400).json({ message: "사용자가 존재하지 않습니다." });
     }
@@ -90,8 +107,7 @@ app.post("/user/login", async (req, res) => {
     if (user.password !== password) {
       return res.status(400).json({ message: "비밀번호가 맞지 않습니다." });
     }
-
-    res.status(200).json({ message: "로그인 성공", user });
+    res.status(200).json({ message: "로그인 성공", userData });
   } catch (err) {
     console.error("로그인 중 에러 발생:", err);
     res.status(500).json({ message: "서버 오류", error: err });
@@ -105,3 +121,5 @@ app.get("/user/authUser", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+app.use("/uploads", express.static(path.resolve(__dirname, "../uploads")));

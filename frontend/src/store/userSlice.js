@@ -11,16 +11,25 @@ const initialState = {
   isLoading: false,
   isAuth: false,
   error: null,
+  value: "",
+  userData: null,
 };
 
 const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
+    //test
+    updateValue: (state, action) => {
+      state.value = action.payload;
+    },
+
     // 로그아웃 액션
     logoutUser: (state) => {
       state.isAuth = false;
       localStorage.removeItem("accessToken");
+      console.log("로그아웃되었습니다.");
+      toast.info("로그아웃되었습니다.", { position: "top-center" });
     },
   },
   extraReducers: (builder) => {
@@ -45,6 +54,7 @@ const userSlice = createSlice({
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
       })
+
       .addCase(loginUser.fulfilled, (state, action) => {
         if (!action.payload) {
           console.error("❌ 로그인 응답이 없습니다.");
@@ -54,6 +64,10 @@ const userSlice = createSlice({
         if (action.payload.loginSuccess) {
           state.isAuth = true;
           localStorage.setItem("accessToken", action.payload.accessToken);
+
+          // 로그인 성공 시 userData 업데이트
+          state.userData = action.payload.userData;
+
           toast.info("로그인 성공!", { position: "top-center" });
         } else {
           state.isAuth = false;
@@ -71,6 +85,8 @@ const userSlice = createSlice({
       })
 
       .addCase(authUser.pending, (state) => {
+        console.log("pending");
+
         state.isLoading = true;
       })
       .addCase(authUser.fulfilled, (state, action) => {
@@ -91,9 +107,11 @@ const userSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
         state.isAuth = false;
+        console.log("rejected");
         localStorage.removeItem("accessToken");
       });
   },
 });
 
+export const { updateValue } = userSlice.actions; // ✅ actions에서 추출
 export default userSlice.reducer;

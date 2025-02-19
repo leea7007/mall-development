@@ -14,11 +14,9 @@ let auth = async (req, res, next) => {
   try {
     //토큰 유효한지 확인
     const decode = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("decode:" + decode.userId);
     const user = await User.findOne({
       _id: decode.userId,
     });
-    console.log("user:" + user);
     if (!user) return res.sendStatus(401);
     req.user = user;
     next();
