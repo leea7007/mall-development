@@ -14,8 +14,6 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage: storage }).single("file");
-
-// 제품 업로드 라우트
 router.post("/image", upload, auth, async (req, res, next) => {
   try {
     if (!req.file) {
@@ -33,7 +31,8 @@ router.post("/image", upload, auth, async (req, res, next) => {
 router.post("/", auth, async (req, res, next) => {
   try {
     const product = new Product(req.body);
-    product.save();
+
+    await product.save();
     return res.sendStatus(201);
   } catch (error) {
     next(error);

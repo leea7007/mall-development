@@ -7,7 +7,6 @@ export function loginUser(dataToSubmit) {
 
   return async (dispatch) => {
     try {
-      console.log("dataToSubmit:", dataToSubmit);
       const response = await axios.post(
         "/user/login",
         dataToSubmit,

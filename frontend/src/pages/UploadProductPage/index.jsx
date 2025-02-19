@@ -30,17 +30,11 @@ const UploadProductPage = () => {
     event.preventDefault();
 
     const { title, description, price, continents, images } = product;
-    console.log("userData:", userData);
-    console.log("writer:", userData?.id);
-
     const body = {
-      writer: userData.id, // ✅ 안전한 접근 연산자 추가
-      title,
-      description,
-      price,
-      continents,
-      images, // 이미지는 file 업로드 후 받은 파일 이름 배열을 넣기
+      writer: userData.userId, // ✅ 안전한 접근 연산자 추가
+      ...product,
     };
+    console.log("서버로 전송되는 데이터:", body); // 서버로 전송되는 데이터 로그
 
     try {
       await axiosInstance.post("/products", body);
@@ -59,7 +53,8 @@ const UploadProductPage = () => {
   };
 
   const handleImages = (newImages) => {
-    console.log(newImages);
+    console.log("새로운 이미지 목록:", newImages); // 새로 업데이트된 이미지 목록 출력
+
     setProduct((prevState) => ({
       ...prevState,
       images: newImages,

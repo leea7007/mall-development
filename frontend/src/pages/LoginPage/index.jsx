@@ -25,23 +25,8 @@ const LoginPage = () => {
       // 로그인 요청을 dispatch로 보내고, 그 결과를 받아옴
       const result = await dispatch(loginUser(body));
 
-      console.log("📌 디스패치 결과:", result); // 결과 구조 확인
-
       // 로그인 성공 여부 확인
       if (result.payload?.loginSuccess) {
-        console.log("✅ [로그인 성공] 응답 데이터:", result.payload);
-
-        // Redux에서 userData를 제대로 가져오는지 확인
-        console.log("Redux userData:", userData); // 로그로 확인
-
-        // 로그인 성공 후 사용자 데이터 확인
-        if (userData) {
-          console.log("User Data:", userData); // userData 출력 (화면에서 활용)
-        }
-
-        // 로그인 성공 후, accessToken을 로컬 스토리지에 저장
-        localStorage.setItem("accessToken", result.payload.accessToken);
-
         // 로그인 성공 시 홈 페이지로 리다이렉트
         navigate("/");
       } else {

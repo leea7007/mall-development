@@ -6,13 +6,13 @@ import {
   authUser,
   logoutUser,
 } from "./thunkFunctions"; // registerUser import
+import { Navigate } from "react-router-dom";
 
 const initialState = {
   isLoading: false,
   isAuth: false,
   error: null,
   value: "",
-  userData: null,
 };
 
 const userSlice = createSlice({
@@ -20,15 +20,10 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     //test
-    updateValue: (state, action) => {
-      state.value = action.payload;
-    },
-
     // 로그아웃 액션
     logoutUser: (state) => {
       state.isAuth = false;
       localStorage.removeItem("accessToken");
-      console.log("로그아웃되었습니다.");
       toast.info("로그아웃되었습니다.", { position: "top-center" });
     },
   },
@@ -39,7 +34,6 @@ const userSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        console.log("회원가입 완료");
         toast.info("회원가입이 완료되었습니다. 로그인해주세요.", {
           position: "top-center",
         });
@@ -60,14 +54,16 @@ const userSlice = createSlice({
           console.error("❌ 로그인 응답이 없습니다.");
           return;
         }
-
         if (action.payload.loginSuccess) {
+          if (state.userData === action.payload) {
+            console.log("반복되고 있음");
+            return;
+          }
           state.isAuth = true;
           localStorage.setItem("accessToken", action.payload.accessToken);
 
-          // 로그인 성공 시 userData 업데이트
-          state.userData = action.payload.userData;
-
+          // 로그인 성공 시 userData 업데이트 여기가 포인트*************
+          state.userData = action.payload;
           toast.info("로그인 성공!", { position: "top-center" });
         } else {
           state.isAuth = false;
@@ -93,7 +89,6 @@ const userSlice = createSlice({
         if (action.payload === null) {
           return;
         }
-        console.log("🟢 로그인 응답 payload:", action.payload);
 
         state.isLoading = false;
         if (action.payload.loginSuccess) {
