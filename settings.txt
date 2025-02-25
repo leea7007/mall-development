@@ -1,0 +1,4 @@
+root: D:\project\mall-development 
+path: C:\Program Files\nodejs 
+arch: 64 
+proxy: none

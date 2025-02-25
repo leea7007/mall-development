@@ -1,5 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import request from "superagent"; // superagent 임포트
+import axiosInstance from "../utils/axios";
 
 export const registerUser = createAsyncThunk(
   "user/register",
@@ -71,5 +72,19 @@ export const logoutUser = createAsyncThunk(
 
     // 로그아웃 성공 메시지 리턴
     return { message: "로그아웃 성공" };
+  }
+);
+
+export const addToCart = createAsyncThunk(
+  "user/cart",
+  async (body, thunkAPI) => {
+    try {
+      const response = await axiosInstance.post(`/user/cart`, body);
+      return response.data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(
+        err.response ? err.response.data : err.message
+      );
+    }
   }
 );

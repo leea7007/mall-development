@@ -83,4 +83,47 @@ router.post("/logout", auth, (req, res, next) => {
   }
 });
 
+router.post("/cart", auth, async (req, res, next) => {
+  try {
+    //먼저 user collecion에 유저정보 가져오기
+    const userInfo = await User.findOne({ _id: req.user._id });
+
+    //이미 장바구니에 있는지 확인
+    let duplicate = false;
+    userInfo.cart.forEach((item) => {
+      if (item.id === req.body.productId) {
+        duplicate = true;
+      }
+    });
+    //이미 상품 있을 시
+    if (duplicate) {
+      const user = await User.findOneAndUpdate(
+        { _id: req.user._id, "cart.id": req.body.productId },
+        { $inc: { "cart.$.quantity": 1 } },
+        { new: true } //이거 넣어야 업데이트 됨
+      );
+      return res.status(200).send(user.cart);
+    }
+    //상품 이미 있지 않을 시
+    else {
+      const user = await User.findOneAndUpdate(
+        { _id: req.user._id },
+        {
+          $push: {
+            cart: {
+              id: req.body.productId,
+              quantity: 1,
+              date: Date.now(),
+            },
+          },
+        },
+        { new: true }
+      );
+      return res.status(201).send(user.cart);
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;

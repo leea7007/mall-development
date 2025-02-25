@@ -5,6 +5,7 @@ import {
   loginUser,
   authUser,
   logoutUser,
+  addToCart,
 } from "./thunkFunctions"; // registerUser import
 import { Navigate } from "react-router-dom";
 
@@ -104,6 +105,17 @@ const userSlice = createSlice({
         state.isAuth = false;
         console.log("rejected");
         localStorage.removeItem("accessToken");
+      })
+      .addCase(addToCart.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(addToCart.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.userData.cart = action.payload;
+
+        toast.info("장바구니에 추가되었습니다.", {
+          position: "top-center",
+        });
       });
   },
 });

@@ -45,12 +45,12 @@ router.get("/", async (req, res, next) => {
   const limit = req.query.limit ? Number(req.query.limit) : 20;
   const skip = req.query.skip ? Number(req.query.skip) : 0;
   const term = req.query.searchTerm;
-
   let findArgs = {};
+
+  if (term) {
+    findArgs["$text"] = { $search: term };
+  }
   for (let key in req.query.filters) {
-    if (term) {
-      findArgs["$text"] = { $search: term };
-    }
     if (req.query.filters[key].length > 0) {
       if (key === "price") {
         findArgs[key] = {
@@ -82,6 +82,23 @@ router.get("/", async (req, res, next) => {
     });
   } catch (error) {
     next(error);
+  }
+});
+
+router.get("/:id", async (req, res, next) => {
+  const type = req.query.type;
+  let productIds = req.params.id; // < /:id
+
+  // using productID, get data from DB names same
+
+  try {
+    const product = await Product.findOne({
+      _id: productIds, // 이미 string 형식이면 바로 비교 가능
+    }).populate("writer");
+
+    return res.status(200).send(product);
+  } catch (error) {
+    console.error("DB 조회 중 오류 발생:", error);
   }
 });
 

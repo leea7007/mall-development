@@ -12,7 +12,6 @@ export function loginUser(dataToSubmit) {
         dataToSubmit,
         { withCredentials: true } // 쿠키를 포함시켜 보냄
       );
-      console.log("response", response);
       // 로그인 성공 시 응답이 있을 경우에만 dispatch
       if (response.data.userData) {
         dispatch({
@@ -23,7 +22,6 @@ export function loginUser(dataToSubmit) {
           },
         });
       } else {
-        console.error("로그인 실패: 응답 데이터 없음");
         dispatch({
           type: LOGIN_USER,
           payload: { error: "로그인 실패: 응답 데이터 없음" },

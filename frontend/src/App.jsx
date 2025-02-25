@@ -35,11 +35,7 @@ function Layout({ data }) {
       </main>
       <Footer />
       <div>
-        <h1>백엔드 API 응답: {data ? JSON.stringify(data) : "로딩 중..."}</h1>
-        <h1>
-          로그인 상태 확인:{" "}
-          {data && data.isLoggedIn ? "로그인됨" : "로그인되지 않음"}
-        </h1>
+        <h1></h1>
       </div>
     </div>
   );
@@ -121,7 +117,6 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<LandingPage />} />
             <Route path="/cartpage" element={<CartPage />} />
-            <Route path="/detailproduct" element={<DetailProductPage />} />
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/product/upload" element={<UploadProductPage />} />
             <Route path="/product/:productId" element={<DetailProductPage />} />

@@ -146,8 +146,7 @@ const LandingPage = () => {
         <SearchInput searchTerm={searchTerm} onSearch={handleSearchTerm} />
       </div>
 
-      {/* card */}
-      <div className="grid grid-col-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {products.map((product) => (
           <CardItem product={product} key={product._id} />
         ))}
