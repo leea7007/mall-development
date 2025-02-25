@@ -4,17 +4,18 @@ import CheckBox from "./Sections/CheckBox";
 import SearchInput from "./Sections/SearchInput";
 import CardItem from "./Sections/CardItem";
 import axiosInstance from "../../utils/axios";
-import { continents } from "../../utils/filterData";
+import { continents, prices } from "../../utils/filterData";
 
 const LandingPage = () => {
   // state
   const limit = 4;
+  const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState([]);
   const [skip, setSkip] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [filters, setFilters] = useState({
     continents: [],
-    price: [],
+    price: [], // DB가 price로 돼있음. 따라가야함.
   });
 
   useEffect(() => {
@@ -24,9 +25,7 @@ const LandingPage = () => {
   useEffect(() => {
     fetch("http://localhost:8080/products") // 백엔드 엔드포인트 확인
       .then((res) => res.json())
-      .then((data) => {
-        console.log("Received products:", data.products);
-      })
+      .then((data) => {})
       .catch((error) => console.error("Error fetching products:", error));
   }, []);
 
@@ -63,6 +62,7 @@ const LandingPage = () => {
       limit,
       loadMore: true,
       filters,
+      searchTerm,
     };
     fetchProducts(body);
     setSkip(skip + limit);
@@ -71,9 +71,23 @@ const LandingPage = () => {
   const handleFilters = (newFilteredData, category) => {
     const newFilters = { ...filters };
     newFilters[category] = newFilteredData;
-
+    if (category === "price") {
+      const priceValues = handlePrice(newFilteredData);
+      newFilters[category] = priceValues;
+    }
     showFilteredResults(newFilters);
     setFilters(newFilters);
+  };
+
+  const handlePrice = (value) => {
+    let array = [];
+    for (let key in prices) {
+      if (prices[key]._id === value) {
+        // value와 _id의 자료형을 일치시킴
+        array = prices[key].array;
+      }
+    }
+    return array;
   };
 
   const showFilteredResults = (filters) => {
@@ -81,9 +95,26 @@ const LandingPage = () => {
       skip: 0,
       limit,
       filters,
+      searchTerm,
     };
     fetchProducts(body);
     setSkip(0);
+  };
+
+  const checkedPrice = () => {};
+
+  //Search
+
+  const handleSearchTerm = (e) => {
+    const body = {
+      skip: 0,
+      limit,
+      filters,
+      searchTerm: e.target.value,
+    };
+    setSkip(0);
+    setSearchTerm(e.target.value);
+    fetchProducts(body);
   };
 
   return (
@@ -100,13 +131,19 @@ const LandingPage = () => {
             onFilters={(filters) => handleFilters(filters, "continents")}
           />
         </div>
+
         <div className="w-1/2">
-          <RadioBox />
+          <RadioBox
+            prices={prices}
+            checkedPrice={filters.price}
+            onFilters={(filters) => handleFilters(filters, "price")}
+          />
         </div>
       </div>
+
       {/* search */}
       <div className="flex justify-end">
-        <SearchInput />
+        <SearchInput searchTerm={searchTerm} onSearch={handleSearchTerm} />
       </div>
 
       {/* card */}

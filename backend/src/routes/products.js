@@ -44,14 +44,29 @@ router.get("/", async (req, res, next) => {
   const sortBy = req.query.sortBy ? req.query.sortBy : "_id";
   const limit = req.query.limit ? Number(req.query.limit) : 20;
   const skip = req.query.skip ? Number(req.query.skip) : 0;
+  const term = req.query.searchTerm;
 
   let findArgs = {};
   for (let key in req.query.filters) {
-    if (req.query.filters[key].length > 0) {
-      findArgs[key] = req.query.filters[key];
+    if (term) {
+      findArgs["$text"] = { $search: term };
     }
+    if (req.query.filters[key].length > 0) {
+      if (key === "price") {
+        findArgs[key] = {
+          // greater than equal
+          $gte: req.query.filters[key][0],
+          // less than equal
+          $lte: req.query.filters[key][1],
+        };
+      } else {
+        findArgs[key] = req.query.filters[key];
+      }
+    }
+
     console.log("findArgs: ", findArgs);
   }
+
   try {
     const products = await Product.find(findArgs)
       .populate("writer")

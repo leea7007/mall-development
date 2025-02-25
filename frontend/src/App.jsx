@@ -124,6 +124,7 @@ function App() {
             <Route path="/detailproduct" element={<DetailProductPage />} />
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/product/upload" element={<UploadProductPage />} />
+            <Route path="/product/:productId" element={<DetailProductPage />} />
 
             <Route element={<ProtectedRoutes />}>
               <Route path="/protected" element={<ProtectedPage />} />
