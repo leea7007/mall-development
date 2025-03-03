@@ -35,6 +35,13 @@ export const loginUser = createAsyncThunk(
       if (res.body.loginSuccess === false) {
         return thunkAPI.rejectWithValue(res.body.message);
       }
+      // console.log("resbody", res.body);
+      // await thunkAPI.dispatch(
+      //   getCartItems({
+      //     cartItemIds: res.body.cartItemIds, // 장바구니 아이템 ID 배열
+      //     userCart: res.body.cart, // 사용자 장바구니 정보
+      //   })
+      // );
 
       return res.body; // 성공하면 그대로 반환
     } catch (error) {
@@ -80,11 +87,52 @@ export const addToCart = createAsyncThunk(
   async (body, thunkAPI) => {
     try {
       const response = await axiosInstance.post(`/user/cart`, body);
+      if (response.status !== 200 || response.data.error) {
+        throw new Error(response.data.error || "장바구니 추가 실패");
+      }
       return response.data;
     } catch (err) {
       return thunkAPI.rejectWithValue(
         err.response ? err.response.data : err.message
       );
     }
+  }
+);
+
+export const getCartItems = createAsyncThunk(
+  "user/getCartItems",
+  async ({ cartItemIds, userCart }, thunkAPI) => {
+    try {
+      const response = await axiosInstance.get(
+        `/product/${cartItemIds}?type=array`
+      );
+      const productArray = Array.isArray(response.data)
+        ? response.data
+        : [response.data];
+      userCart.forEach((cartItem) => {
+        response.data.forEach((productDetail, index) => {
+          if (cartItem.id === productDetail._id) {
+            response.data[index].quantity = cartItem.quantity;
+          }
+        });
+      });
+      console.log("response.data", response.data);
+      return response.data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(
+        err.response ? err.response.data : err.message
+      );
+    }
+  }
+);
+
+export const removeCartItem = createAsyncThunk(
+  "user/removeCartItem",
+  async (productId, thunkAPI) => {
+    try {
+      const response = await axiosInstance.delete(
+        `/users/cart?productId=${productId}`
+      );
+    } catch {}
   }
 );

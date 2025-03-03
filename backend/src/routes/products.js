@@ -92,9 +92,13 @@ router.get("/:id", async (req, res, next) => {
   // using productID, get data from DB names same
 
   try {
-    const product = await Product.findOne({
-      _id: productIds, // 이미 string 형식이면 바로 비교 가능
-    }).populate("writer");
+    if (typeof productIds === "string") {
+      productIds = productIds.split(",");
+    }
+
+    const product = await Product.find({ _id: { $in: productIds } }).populate(
+      "writer"
+    );
 
     return res.status(200).send(product);
   } catch (error) {

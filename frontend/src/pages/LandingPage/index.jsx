@@ -22,12 +22,12 @@ const LandingPage = () => {
     fetchProducts({ skip, limit });
   }, [limit]);
 
-  useEffect(() => {
-    fetch("http://localhost:8080/products") // 백엔드 엔드포인트 확인
-      .then((res) => res.json())
-      .then((data) => {})
-      .catch((error) => console.error("Error fetching products:", error));
-  }, []);
+  // useEffect(() => {
+  //   fetch("http://localhost:8080/products") // 백엔드 엔드포인트 확인
+  //     .then((res) => res.json())
+  //     .then((data) => {})
+  //     .catch((error) => console.error("Error fetching products:", error));
+  // }, []);
 
   const fetchProducts = async ({
     skip,

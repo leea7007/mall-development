@@ -16,7 +16,7 @@ import UploadProductPage from "./pages/UploadProductPage";
 import { ToastContainer } from "react-toastify";
 import { loginUser, registerUser } from "./_actions/user_actions"; // 액션 임포트
 import "react-toastify/dist/ReactToastify.css"; // CSS 임포트
-import { authUser } from "./store/thunkFunctions"; // authUser 액션 임포트
+import { authUser, getCartItems } from "./store/thunkFunctions"; // authUser 액션 임포트
 import ProtectedRoutes from "./components/ProtectedRoutes";
 import NotAuthRoutes from "./components/NotAuthRoutes";
 
@@ -83,25 +83,25 @@ function App() {
     //   });
 
     // 테스트용 API 호출
-    fetch("http://localhost:8080/user/test", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ test: "data" }),
-      credentials: "include", // 쿠키를 포함하도록 설정
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("API 호출 오류: " + response.status);
-        }
-        return response.json();
-      })
-      .then((data) => setData(data))
-      .catch((err) => {
-        console.error("API 호출 오류:", err);
-        setData(null);
-      });
+    // fetch("http://localhost:8080/user/test", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({ test: "data" }),
+    //   credentials: "include", // 쿠키를 포함하도록 설정
+    // })
+    //   .then((response) => {
+    //     if (!response.ok) {
+    //       throw new Error("API 호출 오류: " + response.status);
+    //     }
+    //     return response.json();
+    //   })
+    //   .then((data) => setData(data))
+    //   .catch((err) => {
+    //     console.error("API 호출 오류:", err);
+    //     setData(null);
+    //   });
   }, []); // 빈 의존성 배열로 한 번만 실행되도록 설정
 
   return (
@@ -120,7 +120,7 @@ function App() {
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/product/upload" element={<UploadProductPage />} />
             <Route path="/product/:productId" element={<DetailProductPage />} />
-
+            <Route path="/user/cart" element={<CartPage />} />
             <Route element={<ProtectedRoutes />}>
               <Route path="/protected" element={<ProtectedPage />} />
             </Route>

@@ -6,8 +6,8 @@ import {
   authUser,
   logoutUser,
   addToCart,
+  getCartItems,
 } from "./thunkFunctions"; // registerUser import
-import { Navigate } from "react-router-dom";
 
 const initialState = {
   isLoading: false,
@@ -56,8 +56,11 @@ const userSlice = createSlice({
           return;
         }
         if (action.payload.loginSuccess) {
-          if (state.userData === action.payload) {
+          if (state.userData === action.payload || !state.isAuth) {
             console.log("반복되고 있음");
+            state.isAuth = true;
+            localStorage.setItem("accessToken", action.payload.accessToken);
+
             return;
           }
           state.isAuth = true;
@@ -65,11 +68,12 @@ const userSlice = createSlice({
 
           // 로그인 성공 시 userData 업데이트 여기가 포인트*************
           state.userData = action.payload;
-          toast.info("로그인 성공!", { position: "top-center" });
+          console.log("state.userData", state.userData);
+          toast.info("로그인 성공!", { position: "bottom-right" });
         } else {
           state.isAuth = false;
           toast.error(action.payload.message || "로그인 실패", {
-            position: "top-center",
+            position: "bottom-right",
           });
         }
       })
@@ -77,7 +81,7 @@ const userSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
         toast.error(`로그인 실패: ${action.payload}`, {
-          position: "top-center",
+          position: "bottom-right",
         });
       })
 
@@ -111,11 +115,36 @@ const userSlice = createSlice({
       })
       .addCase(addToCart.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.userData.cart = action.payload;
+        if (!state.isAuth) {
+          toast.error("로그인 후 추가해주세요!", {
+            position: "bottom-right",
+          });
+          throw new Error("장바구니 추가 실패");
+        }
+        state.userData = action.payload;
 
         toast.info("장바구니에 추가되었습니다.", {
-          position: "top-center",
+          position: "bottom-right",
         });
+      })
+      .addCase(addToCart.rejected, (state, action) => {
+        state.isLoading = false;
+        toast.error("장바구니 추가 실패!", {
+          position: "bottom-right",
+        });
+      })
+
+      .addCase(getCartItems.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getCartItems.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.cartDetail = action.payload;
+      })
+      .addCase(getCartItems.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+        toast.error(action.payload);
       });
   },
 });

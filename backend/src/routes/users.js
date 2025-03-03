@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/Users");
+const Product = require("../models/Product");
+
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 require("dotenv").config();
@@ -87,7 +89,9 @@ router.post("/cart", auth, async (req, res, next) => {
   try {
     //먼저 user collecion에 유저정보 가져오기
     const userInfo = await User.findOne({ _id: req.user._id });
-
+    if (!userInfo) {
+      return res.status(401).json({ error: "로그인이 필요합니다." });
+    }
     //이미 장바구니에 있는지 확인
     let duplicate = false;
     userInfo.cart.forEach((item) => {
@@ -121,6 +125,33 @@ router.post("/cart", auth, async (req, res, next) => {
       );
       return res.status(201).send(user.cart);
     }
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.delete("/cart", auth, async (req, res, next) => {
+  try {
+    const userInfo = await User.findOneAndUpdate(
+      { _id: req.user._id },
+      {
+        $pull: { cart: { id: req.query.productId } },
+      },
+      { new: true }
+    );
+
+    const cart = userInfo.cart;
+    const array = cart.map((item) => {
+      return item.id;
+    });
+    const productInfo = await Product.find({ _id: { $in: array } }).populate(
+      "writer"
+    );
+
+    return res.json({
+      productInfo,
+      cart,
+    });
   } catch (err) {
     next(err);
   }
